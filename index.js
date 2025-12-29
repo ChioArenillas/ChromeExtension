@@ -1,33 +1,50 @@
 
-// si tienes en el HTML del botón un onclick="saveLead"
-
-// function saveLead() {
-//     console.log("Button clicked from onclick attribute")
-// }
- 
 let myLeads = []
 const inputEl = document.getElementById("input-el")
 const inputBtn = document.getElementById("input-btn")
+const deleteBtn = document.getElementById("delete-btn")
 const ulEl = document.getElementById("ul-el")
+const tabBtn = document.getElementById("saveTab-btn")
+const leadsFromLocalStorage = JSON.parse(localStorage.getItem("myLeads"))
 
-inputBtn.addEventListener("click", function () {
-    myLeads.push(inputEl.value)
-    inputEl.value = ""
-    renderLeads()
-})
+if (leadsFromLocalStorage) {
+    myLeads = leadsFromLocalStorage
+    render(myLeads)
+}
 
-function renderLeads(){
+function render(leads){
 let listItems= ""
-for (let i = 0; i < myLeads.length; i++) {
+for (let i = 0; i < leads.length; i++) {
     listItems += `
     <li>
-        <a target='_blank' href='${myLeads[i]}'>
-            ${myLeads[i]}
+        <a target='_blank' href='${leads[i]}'>
+            ${leads[i]}
         </a>
     </li>`
 }
-ulEl.innerHTML= listItems //haciendo fuera del for el .innerHTML solo lo usas una vez, si estuviera dentro del loop se usaría 3 veces, como el uso del DOM tiene un coste, es mejor usarlo solo una vez
+ulEl.innerHTML= listItems 
 }
+inputBtn.addEventListener("click", function () {
+    myLeads.push(inputEl.value)
+    inputEl.value = ""
+    localStorage.setItem("myLeads", JSON.stringify(myLeads)) 
+    render(myLeads)
+})
+tabBtn.addEventListener("click", function(){
+    chrome.tabs.query({active: true, currentVindow: true}, function(tabs) {
+    myLeads.push(tabs[0].url) 
+    localStorage.setItem("myLeads", JSON.stringify(myLeads))
+    render(myLeads)
+    })
+})
+deleteBtn.addEventListener("dblclick", function() {
+    console.log("doble click")
+    localStorage.clear()
+    myLeads = []
+    render(myLeads)
+} )
+
+
 
 
  
